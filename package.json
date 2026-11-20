@@ -19,6 +19,7 @@
   },
   "homepage": "https://github.com/Yamen-AbuAlrob/QR-File-Transmitter#readme",
   "dependencies": {
+    "jsqr": "^1.4.0",
     "qrcode-generator": "^2.0.4"
   }
 }

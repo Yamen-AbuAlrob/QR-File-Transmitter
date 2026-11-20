@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>QR File Receiver</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <main class="container">
+    <h1>QR File Receiver</h1>
+
+    <section class="panel">
+       <button id="startBtn">Start Camera</button>
+        <button id="screenBtn">Capture Screen</button>
+      <button id="resetBtn">Reset</button>
+      <video id="video" playsinline muted></video>
+      <canvas id="canvas" hidden></canvas>
+    </section>
+
+    <section class="panel">
+      <div id="progress">Waiting for header...</div>
+      <div id="debug"></div>
+      <div id="result"></div>
+    </section>
+  </main>
+
+  <script src="node_modules/jsqr/dist/jsQR.js"></script>
+  <script src="js/receiver.js"></script>
+</body>
+</html>

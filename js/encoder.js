@@ -6,6 +6,12 @@ function bytesToBase64(bytes) {
   return btoa(binary);
 }
 
-function buildPacket(index, total, chunk) {
-  return `${index}|${total}|${bytesToBase64(chunk)}`;
+// Header packet: H|name|size|hash|total
+function buildHeaderPacket(info, total) {
+  return `H|${encodeURIComponent(info.name)}|${info.size}|${info.hash}|${total}`;
+}
+
+// Data packet: D|index|total|base64data
+function buildDataPacket(index, total, chunk) {
+  return `D|${index}|${total}|${bytesToBase64(chunk)}`;
 }
