@@ -4,41 +4,34 @@ const qrDisplay = document.getElementById('qrDisplay');
 const status = document.getElementById('status');
 const startSendBtn = document.getElementById('startSendBtn');
 const stopBtn = document.getElementById('stopBtn');
+const sendEta = document.getElementById('sendEta');
 
 const FRAME_DELAY_MS = 200; // time each QR stays on screen
 let playTimer = null;
-let packets = [];
-
-function buildAllPackets(result) {
-  const total = result.chunks.length;
-  const all = [buildHeaderPacket(result, total)];
-  result.chunks.forEach((chunk, i) => {
-    all.push(buildDataPacket(i, total, chunk));
-  });
-  return all;
-}
+let fileData = null;      // result of processFile
+let degreeTable = null;
+let headerPacket = '';
 
 // Show only the header packet and wait for the user to confirm
 function showHeaderOnly() {
   clearInterval(playTimer);
-  renderQr(packets[0], qrDisplay);
+  renderQr(headerPacket, qrDisplay);
   status.textContent = 'Header shown. Wait until the receiver reads it, then press Start Sending.';
   startSendBtn.disabled = false;
   stopBtn.disabled = true;
 }
 
-// Loop through the data packets only (index 1 and up)
+// Send an endless stream of encoded packets, each with a new seed
 function startSending() {
   clearInterval(playTimer);
-  let index = 1;
+  let seed = 1;
+  const k = fileData.blocks.length;
 
   function showNext() {
-    renderQr(packets[index], qrDisplay);
-    status.textContent = `Chunk ${index} / ${packets.length - 1}`;
-    index++;
-    if (index >= packets.length) {
-      index = 1; // loop back to the first data packet
-    }
+    const encoded = encodeBlock(fileData.blocks, seed, degreeTable);
+    renderQr(buildDataPacket(seed, encoded), qrDisplay);
+    status.textContent = `Packet #${seed} (file needs about ${Math.ceil(k * 1.4)} packets)`;
+    seed++;
   }
 
   showNext();
@@ -58,16 +51,24 @@ fileInput.addEventListener('change', async () => {
 
   clearInterval(playTimer);
   fileInfo.textContent = 'Processing...';
-  const result = await processFile(file);
+  fileData = await processFile(file);
+
+  const k = fileData.blocks.length;
+  degreeTable = buildDegreeTable(k);
+  headerPacket = buildHeaderPacket(fileData);
+
+  const packetsNeeded = Math.ceil(k * 1.4);
+  const seconds = Math.ceil((packetsNeeded * FRAME_DELAY_MS) / 1000);
 
   fileInfo.innerHTML = `
-    Name: ${result.name}<br>
-    Size: ${result.size} bytes<br>
-    Chunks: ${result.chunks.length}<br>
-    SHA-256: <code>${result.hash}</code>
+    Name: ${fileData.name}<br>
+    Original size: ${fileData.size} bytes<br>
+    Sent size: ${fileData.payloadSize} bytes (${fileData.gzip ? 'gzip compressed' : 'not compressed'})<br>
+    Blocks: ${k}<br>
+    SHA-256: <code>${fileData.hash}</code>
   `;
+  sendEta.textContent = `Estimated sending time: about ${seconds} seconds`;
 
-  packets = buildAllPackets(result);
   showHeaderOnly();
 });
 

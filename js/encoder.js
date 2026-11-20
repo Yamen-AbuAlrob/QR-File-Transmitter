@@ -6,12 +6,21 @@ function bytesToBase64(bytes) {
   return btoa(binary);
 }
 
-// Header packet: H|name|size|hash|total
-function buildHeaderPacket(info, total) {
-  return `H|${encodeURIComponent(info.name)}|${info.size}|${info.hash}|${total}`;
+// Header packet: H|name|size|hash|payloadSize|gzip|k|blockSize
+function buildHeaderPacket(info) {
+  return [
+    'H',
+    encodeURIComponent(info.name),
+    info.size,
+    info.hash,
+    info.payloadSize,
+    info.gzip ? 1 : 0,
+    info.blocks.length,
+    info.blocks[0].length
+  ].join('|');
 }
 
-// Data packet: D|index|total|base64data
-function buildDataPacket(index, total, chunk) {
-  return `D|${index}|${total}|${bytesToBase64(chunk)}`;
+// Data packet: D|seed|base64data
+function buildDataPacket(seed, encodedBlock) {
+  return `D|${seed}|${bytesToBase64(encodedBlock)}`;
 }
