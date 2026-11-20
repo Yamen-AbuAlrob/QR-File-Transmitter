@@ -1,0 +1,24 @@
+{
+  "name": "qr-file-transmitter",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Yamen-AbuAlrob/QR-File-Transmitter.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/Yamen-AbuAlrob/QR-File-Transmitter/issues"
+  },
+  "homepage": "https://github.com/Yamen-AbuAlrob/QR-File-Transmitter#readme",
+  "dependencies": {
+    "qrcode-generator": "^2.0.4"
+  }
+}
