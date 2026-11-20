@@ -1,4 +1,4 @@
-const CHUNK_SIZE = 1024; // bytes per chunk, will be tuned later based on QR capacity
+const CHUNK_SIZE = 400; // bytes per chunk, small enough for a QR that is easy to scan
 
 async function readFileAsBytes(file) {
   const buffer = await file.arrayBuffer();
