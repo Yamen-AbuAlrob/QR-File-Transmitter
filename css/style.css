@@ -28,8 +28,8 @@ body {
 }
 
 #qrDisplay svg {
-  width: 400px;
-  height: 400px;
+  width: 500px;
+  height: 500px;
 }
 
 #status {

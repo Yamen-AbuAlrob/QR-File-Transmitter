@@ -5,7 +5,7 @@ const status = document.getElementById('status');
 const startSendBtn = document.getElementById('startSendBtn');
 const stopBtn = document.getElementById('stopBtn');
 
-const FRAME_DELAY_MS = 120; // time each QR stays on screen
+const FRAME_DELAY_MS = 200; // time each QR stays on screen
 let playTimer = null;
 let packets = [];
 

@@ -113,8 +113,9 @@ function scanFrame() {
   if (video.readyState !== video.HAVE_ENOUGH_DATA) return;
   if (!video.videoWidth) return;
 
-  canvas.width = video.videoWidth;
-  canvas.height = video.videoHeight;
+    const scale = 1;
+  canvas.width = Math.floor(video.videoWidth * scale);
+  canvas.height = Math.floor(video.videoHeight * scale);
   ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
   const img = ctx.getImageData(0, 0, canvas.width, canvas.height);
   const code = jsQR(img.data, img.width, img.height, {
@@ -133,7 +134,7 @@ function scanFrame() {
 
 function startScanning() {
   clearInterval(scanTimer);
-  scanTimer = setInterval(scanFrame, 150);
+  scanTimer = setInterval(scanFrame, 50);
 }
 
 startBtn.addEventListener('click', async () => {
