@@ -10,13 +10,13 @@ const stats = document.getElementById('stats');
 const debug = document.getElementById('debug');
 const result = document.getElementById('result');
 
-let header = null;     // file info from the header packet
-let decoder = null;    // FountainDecoder
+let header = null;      // file info from the header packet
+let decoder = null;     // FountainDecoder
 let finished = false;
 let scanTimer = null;
 let scanCount = 0;
-let packetCount = 0;   // distinct data packets received
-let startTime = null;  // time of the first data packet
+let packetCount = 0;    // distinct data packets received
+let startTime = null;   // time of the first data packet
 
 function base64ToBytes(b64) {
   const binary = atob(b64);
@@ -81,12 +81,11 @@ function updateProgress() {
 
   const percent = Math.round((decoder.solvedCount / header.k) * 100);
   const elapsed = (Date.now() - startTime) / 1000;
-  const rate = packetCount / Math.max(elapsed, 0.1); // packets per second
+  const rate = packetCount / Math.max(elapsed, 0.1);
   const expected = Math.ceil(header.k * 1.4);
   const remaining = Math.max(0, Math.ceil((expected - packetCount) / rate));
 
-  progress.textContent =
-    `Solved ${decoder.solvedCount} / ${header.k} blocks (${percent}%)`;
+  progress.textContent = `Solved ${decoder.solvedCount} / ${header.k} blocks (${percent}%)`;
   bar.value = percent;
   stats.textContent =
     `Packets: ${packetCount} | Speed: ${rate.toFixed(1)} packets/s | ` +
@@ -119,21 +118,37 @@ async function checkComplete() {
     return;
   }
 
-  const blob = new Blob([bytes]);
-  const url = URL.createObjectURL(blob);
   bar.value = 100;
   progress.textContent =
     `Done in ${packetCount} packets. Integrity check passed (SHA-256 matches).`;
 
+  // Give the blob a MIME type so video, audio and GIF play correctly
+  const mimeByExt = {
+    mp4: 'video/mp4', webm: 'video/webm', mov: 'video/quicktime',
+    m4v: 'video/mp4', '3gp': 'video/3gpp', ogv: 'video/ogg',
+    gif: 'image/gif', png: 'image/png', jpg: 'image/jpeg', jpeg: 'image/jpeg',
+    webp: 'image/webp', bmp: 'image/bmp', svg: 'image/svg+xml',
+    mp3: 'audio/mpeg', wav: 'audio/wav', ogg: 'audio/ogg',
+    m4a: 'audio/mp4', aac: 'audio/aac'
+  };
+  const ext = header.name.split('.').pop().toLowerCase();
+  const url = URL.createObjectURL(new Blob([bytes], { type: mimeByExt[ext] || '' }));
+
+  const lowerName = header.name.toLowerCase();
   let preview = '';
-  if (/\.(png|jpe?g|gif|webp)$/i.test(header.name)) {
+  if (/\.(png|jpe?g|gif|webp|bmp|svg)$/.test(lowerName)) {
     preview = `<img src="${url}" alt="preview" style="max-width:100%;margin-top:0.5rem">`;
+  } else if (/\.(mp4|webm|mov|m4v|3gp|ogv)$/.test(lowerName)) {
+    preview = `<video src="${url}" controls autoplay loop muted playsinline style="max-width:100%;margin-top:0.5rem"></video>`;
+  } else if (/\.(mp3|wav|ogg|m4a|aac)$/.test(lowerName)) {
+    preview = `<audio src="${url}" controls style="width:100%;margin-top:0.5rem"></audio>`;
   }
+
   result.innerHTML = `
     <p><a id="downloadLink" href="${url}" download="${header.name}">Download ${header.name}</a></p>
     ${preview}
   `;
-  document.getElementById('downloadLink').click();
+  document.getElementById('downloadLink').click(); // auto download
 }
 
 function scanFrame() {
@@ -164,19 +179,27 @@ function startScanning() {
 }
 
 startBtn.addEventListener('click', async () => {
-  const stream = await navigator.mediaDevices.getUserMedia({
-    video: { facingMode: 'environment' }
-  });
-  video.srcObject = stream;
-  await video.play();
-  startScanning();
+  try {
+    const stream = await navigator.mediaDevices.getUserMedia({
+      video: { facingMode: 'environment' }
+    });
+    video.srcObject = stream;
+    await video.play();
+    startScanning();
+  } catch (err) {
+    debug.textContent = `Camera error: ${err.name} - ${err.message}`;
+  }
 });
 
 screenBtn.addEventListener('click', async () => {
-  const stream = await navigator.mediaDevices.getDisplayMedia({ video: true });
-  video.srcObject = stream;
-  await video.play();
-  startScanning();
+  try {
+    const stream = await navigator.mediaDevices.getDisplayMedia({ video: true });
+    video.srcObject = stream;
+    await video.play();
+    startScanning();
+  } catch (err) {
+    debug.textContent = `Screen error: ${err.name} - ${err.message}`;
+  }
 });
 
 resetBtn.addEventListener('click', () => {

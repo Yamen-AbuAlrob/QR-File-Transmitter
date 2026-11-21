@@ -1,4 +1,4 @@
-const CHUNK_SIZE = 630; // bytes per block
+const CHUNK_SIZE = 450; // bytes per block
 
 async function readFileAsBytes(file) {
   const buffer = await file.arrayBuffer();

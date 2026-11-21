@@ -6,7 +6,7 @@ const startSendBtn = document.getElementById('startSendBtn');
 const stopBtn = document.getElementById('stopBtn');
 const sendEta = document.getElementById('sendEta');
 
-const FRAME_DELAY_MS = 200; // time each QR stays on screen
+const FRAME_DELAY_MS = 373; // time each QR stays on screen
 let playTimer = null;
 let fileData = null;      // result of processFile
 let degreeTable = null;
